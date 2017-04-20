@@ -1,0 +1,53 @@
+---
+title: "si618hw6_report_haoyoliu"
+author: "Haoyou Liu"
+date: "2017/3/8"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+## SI 618 Winter 2017 Homework 6
+## Step 1: Load data
+
+First the provided TSV data file is loaded into R using the read.table() function. Display the first 15 rows of the data frame:
+
+```{r echo=FALSE}
+setwd("C:/Users/TF/Desktop/course/SI618/hw6")
+countrydata <- read.table("countrydata_withregion.tsv", sep="\t", header=TRUE, quote="\"")
+head(countrydata, 15)
+```
+
+## Step 2: Scatter plot of log transformed data
+
+Natural logarithms of the area and the population of each country are computed and used to produce the following scatter plot using the qplot() function.
+
+```{r echo=FALSE}
+qplot(log(countrydata$area), log(countrydata$population))
+```
+
+## Step 3: Data aggregation by region
+
+The areas and populations of all countries in a region are summed up using the aggregate() function, respectively. Then the following two pie charts are created using the pie() function.
+
+```{r echo=FALSE}
+aggarea <- aggregate(countrydata$area, by=list(countrydata$region), FUN=sum)
+countrydata$population <- as.numeric(countrydata$population)
+aggpopu <- aggregate(countrydata$population, by=list(countrydata$region), FUN=sum)
+pie(aggarea$x, labels=aggarea$Group.1, main="Area of Regions")
+pie(aggpopu$x, labels=aggpopu$Group.1, main="Population of Regions")
+```
+
+## Step 4: Visualization of Population per sq km of Region
+
+A new data frame is created to contain the population per sq km of each region using the data.frame() function. The data frame is then sorted by population per sq km in decreasing order with the help of the reorder() function. Finally, the following bar plot is created using the qplot() function with geom_bar(stat = "identity") and theme(axis.text.x = element_text(angle = 60,hjust = 1)).
+
+```{r echo=FALSE}
+popu_per_sqkm <- aggpopu$x/aggarea$x
+popu_df <- data.frame(aggpopu$Group.1, popu_per_sqkm)
+popu_df = popu_df[order(popu_df$popu_per_sqkm, decreasing=TRUE), ]
+qplot(reorder(popu_df$aggpopu.Group.1, popu_df$popu_per_sqkm, function(x) -x), popu_df$popu_per_sqkm, xlab = "Region", ylab = "Population per sq km of regions") + geom_bar(stat = "identity") + theme(axis.text.x = element_text(angle = 60,hjust = 1))
+```

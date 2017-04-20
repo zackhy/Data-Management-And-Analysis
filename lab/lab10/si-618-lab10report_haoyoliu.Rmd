@@ -1,0 +1,55 @@
+---
+title: "SI 618 Winter 2017, Lab 10"
+author: "Haoyou Liu"
+date: "April 2, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/TF/Desktop/course/SI618/lab/lab10")
+```
+
+## Part 1. Data preparation
+
+To prepare for clustering, you need to extract the relevant columns: HP, Attack, Defense, Sp..Atk, Sp..Def, and Speed. Next, scale the data: Do this by calling the appropriate R scaling function: use settings so that each variable (column) is centered by subtracting the variable (column) mean, and scaled by dividing by the variable’s standard deviation.
+
+Show the first 5 rows of the scaled data frame:
+
+```{r echo=FALSE}
+pokemon <- read.table("Pokemon.csv", sep = ',', head=TRUE, quote = "\n", comment.char = "")
+pokemon <- pokemon[, c("HP", "Attack", "Defense", "Sp..Atk", "Sp..Def", "Speed")]
+pokemon <- scale(pokemon)
+head(pokemon, 5)
+```
+
+## Part 2. Identify the right number of clusters
+
+The first challenge with the Pokemon data is that there is no pre-determined number of clusters. You will assess the appropriate number of clusters by inspecting how the within group sum of squares varies with respect to the number of clusters. Keep in mind that in real data the elbow in the scree plot might be less of a sharp elbow than in synthetic data. Use the simple plot() function to visualize the within group sum of squares for when k=1:15.
+
+```{r echo=FALSE, fig.height=8, fig.width=8}
+withinss = list()
+for (i in 1:15) {
+  k = kmeans(pokemon, i)
+  withinss[[i]] = k$tot.withinss
+}
+plot(unlist(withinss), type='b', xlab="Number of Clusters", ylab="Within groups sum of squares")
+```
+
+## Part 3. Plot the clusters
+
+Plot the outcomes of the clustering on two dimensions of the data when k (number of clusters)=3. Here, you should plot what cluster the data points with given Defense and Speed characteristics are assigned to (x-axis: Defense, y-axis: Speed, color:cluster assigned). You should use the plot() function. Your plot should look something like this:
+
+```{r echo=FALSE, fig.height=10, fig.width=10}
+k = kmeans(pokemon, 3)
+plot(Speed~Defense, col=k$cluster, data=pokemon, main="k-means clustering of Pokemon with 3 clusters")
+plot(Attack~Defense, col=k$cluster, data=pokemon, main="k-means clustering of Pokemon with 3 clusters")
+```
+
+Repeat the same analysis for k=2.
+
+```{r echo=FALSE, fig.height=10, fig.width=10}
+k = kmeans(pokemon, 2)
+plot(Speed~Defense, col=k$cluster, data=pokemon, main="k-means clustering of Pokemon with 2 clusters")
+plot(Attack~Defense, col=k$cluster, data=pokemon, main="k-means clustering of Pokemon with 2 clusters")
+```

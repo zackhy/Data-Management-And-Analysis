@@ -1,0 +1,101 @@
+---
+title: "SI 618 Homework 7"
+author: "Haoyou Liu"
+date: "March 15, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(ggplot2)
+```
+
+## Loading and Cleaning Data
+
+First the TSV data file created in part 1 is loaded into a R data frame using the read.table() function. The city, state and main_category columns should be converted to factors. Then listwise deletion is applied to remove records with missing data. Then the data.frame is converted to a data.table. Here is the summary of the data table:
+
+```{r echo=FALSE}
+setwd("C:/Users/TF/Desktop/course/SI618/hw7")
+businessdata <- read.table("businessdata.tsv", sep = '\t', head=TRUE, quote = "\n", comment.char = "")
+businessdata$city <- as.factor(businessdata$city)
+businessdata$state <- as.factor(businessdata$state)
+businessdata$main_category <- as.factor(businessdata$main_category)
+businessdata = na.omit(businessdata)
+businessdata = data.table(businessdata)
+summary(businessdata)
+```
+
+## Histograms of Star Ratings
+
+Histograms of star ratings are plotted with the qplot() or ggplot() function. Both actual counts and density plot are shown.
+
+```{r echo=FALSE}
+ggplot(businessdata, aes(x = stars, fill = state)) + geom_histogram(binwidth = 1, alpha = 0.6) + facet_grid(.~state) + ggtitle("Histograms of Star Ratings") + labs(x = "Stars")
+ggplot(businessdata, aes(x = stars, fill = state)) + aes(y = ..density..) + geom_histogram(binwidth = 1, alpha = 0.6) + facet_grid(.~state) + ggtitle("Histograms of Star Ratings") + labs(x = "Stars")
+```
+
+## Histograms of Review Counts
+
+Histograms of review counts are plotted with the qplot() or ggplot() function.
+
+```{r echo=FALSE}
+ggplot(businessdata, aes(x=review_count)) + geom_histogram(binwidth = 10, alpha = 0.6) + ggtitle("Histograms of Review Counts") + labs(x = "Review Counts")
+```
+
+We can see that the distribution of review counts has a long tail. To zoom in on the bars to the left of the 200 mark, we use the data.table syntax or the subset() function to select just the data with review count <= 200. And then plot the histogram again with binwidth=1.
+
+```{r echo=FALSE}
+reviews = businessdata[businessdata$review_count <= 200]
+ggplot(reviews, aes(x = review_count)) + geom_histogram(binwidth = 1, alpha = 0.6) + ggtitle("Histograms of Review Counts (Filtered)") + labs(x = "Review Counts")
+```
+
+## Boxplot of Star Ratings by States
+
+```{r echo=FALSE}
+ggplot(businessdata, aes(x = state, y = stars, fill = state, colour = state)) + geom_boxplot(alpha = 0.6) + ggtitle("Star Ratings by States") + labs(x = "", y = "Stars")
+```
+
+## Jittered Plot of Star Ratings by States
+
+```{r echo=FALSE}
+ggplot(businessdata, aes(x = state, y = stars, fill = state, colour = state)) + geom_jitter(alpha = 0.6) + ggtitle("Star Ratings by States") + labs(x = "", y = "Stars")
+```
+
+## Bar Chart of Number of Businesses by State
+
+The states should be orderd by descreasing height of bars.
+
+```{r echo=FALSE}
+ggplot(businessdata, aes(x = reorder(state, state, function(x) -length(x)))) + geom_bar(alpha = 0.8) + labs(x = "State")
+```
+
+## Jittered Scatterplot of Stars and Review Counts
+
+```{r echo=FALSE}
+ggplot(businessdata, aes(x = stars, y = review_count, fill = state, colour = state)) + geom_jitter(alpha = 0.6) + ggtitle("Star Ratings by States") + labs(y = "Review Count")
+```
+
+## Slice and Dice Data using data.table syntax (or plyr)
+### Subsetting Data
+
+```{r echo=FALSE}
+data = businessdata[, rank := rank(-stars, ties.method = 'first'), by = .(city, main_category)]
+print (data)
+```
+
+Next, we are interested in is the top 5 business with main category of “Chinese” in each city. The data should be ordered by city names, and then by ranks. The result is listed below.
+
+```{r echo=FALSE}
+data = data[rank %in% 1:5 & main_category == 'Chinese', .(city, name, rank, stars)]
+data = data[order(city, rank)]
+print (data)
+```
+
+### Summarize Data
+Next, we compute the mean review counts of all businesses for each state and plot the bar chart below.
+
+```{r echo=FALSE}
+data = businessdata[, .(mean_count = mean(review_count)), by = .(state)]
+ggplot(data, aes(x = reorder(state, mean_count, function(x) -x))) + aes(y = mean_count) + geom_bar(stat = "identity", alpha = 0.8) + labs(x = "State", y = "Mean Review Counts")
+```

@@ -1,0 +1,141 @@
+---
+title: "SI 618 Winter 2017, Homework 10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/TF/Desktop/course/SI618/hw10")
+library(gplots)
+library(cluster)
+```
+
+In this homework, you'll practice using hierarchical and k-means-family clustering on an automotive dataset.  The file **cars.tsv** is provided in the zip file.  You'll also need to load the 'gplots' and 'cluster' libraries. Note that many clustering-related functions in R either produce graphical output themselves, or produce objects that work directly with R's built-in plot() function. So unlike other assignments, you don't need to use ggplot() here to create these plots: just plot() will do.
+
+#### Part 1. [20 points] Data preparation
+
+To prepare for clustering, you need to scale the data: Do this for the **cars** dataset by calling the appropriate R scaling function: use settings so that each variable (column) is centered by subtracting the variable (column) mean, and scaled by dividing by the variable's standard deviation. Use the car names for the data frame row names.
+
+(a) Show the first 5 rows of the scaled data frame, and 
+
+```{r, echo=FALSE, fig.width=14}
+### Your R code here
+cars <- read.table("cars.tsv", sep = '\t', head=TRUE, quote = "\n", comment.char = "")
+cars.data <- cars[, c(3:8)]
+rownames(cars.data) <- cars$Car
+cars.data <- scale(cars.data)
+head(cars.data, 5)
+```
+
+
+(b) Compute a distance object based on the Euclidean distance between the rows of the scaled dataset. Convert the distance object to a matrix and show the 5x5 upper corner of the matrix (i.e. containing the first 5 rows and columns).
+
+```{r, echo=FALSE, fig.width=14}
+### Your R code here
+cars.dist = dist(cars.data)
+as.matrix(cars.dist)[1:5, 1:5]
+```
+
+#### Part 2. [20 points] Hierarchical clustering. 
+Using the distance object you computed from 1(b), compute and plot a hierarchical cluster analysis using average-linkage clustering. With this clustering, cut the tree into 3 clusters and plot the dendogram with red borders around the clusters (Hint: use rect.hclust() function).
+
+```{r, echo=FALSE, fig.width=12}
+### Your R code here
+cars.hclust <- hclust(cars.dist, method = "average")
+groups.3 = cutree(cars.hclust, k=3)
+plot(cars.hclust,labels=cars$Car,main='Hierarchical cluster analysis using average linkage')
+rect.hclust(cars.hclust, k=3)
+```
+
+#### Part 3. [10 points] Using clustering results
+
+The output from the tree-cutting function in 2(b) above should produce a mapping of car type to cluster number (from 1 to 3), like this:
+```{r, echo=TRUE}
+groups.3
+```
+
+With this group mapping, produce three tables:
+
+a) a 1-dimensional contingency table showing the number of cars in each cluster;
+
+b) a 2-dimensional contingency table of the number of cars in each cluster from each country of manufacture; and
+
+c) a table showing the median value per cluster of each variable.
+
+The desired output is shown here:
+
+```{r, echo=FALSE}
+### Your R code here
+table(groups.3)
+table(groups.3, cars$Country)
+aggregate(cars[, c(3:8)], by=list(groups.3), FUN=median)
+```
+
+#### Part 4. Heatmaps [10 points]
+
+Use the heatmap.2 function to produce a heatmap of the cars dataset with these settings:
+
+- average-link clustering
+
+- column-based scaling
+
+- row-based dendrogram
+
+- no density info
+
+You do not need to reproduce the exact width and height shown here, but for reference the example used these settings:
+
+margins = c(5, 8), cexRow=0.7,cexCol=0.7.
+
+```{r, echo=FALSE, fig.width=10}
+### Your R code here
+heatmap.2(as.matrix(cars.data), 
+          hclustfun = function(x) hclust(x, method = "average"),
+          dendrogram="row", 
+          scale="column", 
+          density.info="none", 
+          trace="none", 
+          col=redblue(256), 
+          margins=c(5, 8), 
+          cexRow=0.7, 
+          cexCol=0.7)
+```
+
+#### Part 5. [20 points] k-medoids clustering.
+
+Apply the `partitioned around medoids' R function to the distances you computed in 1(b) to find three clusters of cars.  
+
+(a) Compare this to the 3 clusters you found with heirarchical clustering in Part 2, by showing the 2-dimensional contingency table for the hierarchical group variable (shown in Part 3) vs. the clustering variable that is output by the 'partitioned around medoids' function (Part 4).  How well do the two clusterings agree?  (**include your answers as output in your version of this report**)
+
+```{r, echo=FALSE}
+cars.pam = pam(cars.dist, 3)
+if (all(cars.pam$clustering == groups.3)) {
+  answer <- "The two clusterings are identical"
+  print (answer)
+}
+```
+
+(b) Give the medoid car found for each cluster. (**include your answers as output in your version of this report**)
+
+```{r, echo=FALSE}
+print (cars.pam$medoids)
+```
+
+(c) Show the k-medoids clusters from 5(a) using the appropriate bivariate cluster plotting function, as shown.
+
+```{r, echo=FALSE, fig.height = 10, fig.width = 10}
+### Your R code here
+clusplot(cars.pam, labels=2, main="k-medoid clustering of cars into 3 groups")
+```
+
+#### Part 6. [15 points] Assessing cluster quality.
+
+Create a silhouette plot based on the k-medoid clusters found in Part 5 and distance matrix from Part 1. 
+What can you conclude from the plot about the quality of these three clusters? (**include your answer as output in your version of this report**)
+```{r, echo=FALSE, fig.height = 10}
+### Your R code here
+si <- silhouette(cars.pam)
+plot(si, main="Silhouette plot of three car clusters")
+answer <- "The quality of these three clusters is good because the average silhouette value is 0.47 and we only got one negative silhouette value. For cluster 1, the average silhouette value is 0.72, which means its objects are pretty similar to the cluster. For cluster 3, although its score is pretty low compared with other two clusters, 0.25 is an acceptable value."
+print (answer)
+```
