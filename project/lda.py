@@ -1,5 +1,6 @@
 """
 This program extracts topics from lyrics using sklearn
+Author: Haoyou Liu
 """
 import sklearn
 from sklearn.feature_extraction.text import CountVectorizer

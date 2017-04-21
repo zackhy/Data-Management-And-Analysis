@@ -1,6 +1,7 @@
 """
 This program insert the data from part-a and iTunes Search API into database.
 iTunes Search API rate limit: 20 calls per minute
+Author: Haoyou Liu
 """
 import sqlite3
 import csv

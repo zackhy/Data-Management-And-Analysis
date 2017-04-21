@@ -1,5 +1,6 @@
 """
 This program finds top nouns, top adjectives and top verbs in lyrics of each decades
+Author: Haoyou Liu
 """
 import nltk
 from nltk.corpus import stopwords as sw

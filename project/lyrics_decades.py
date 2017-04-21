@@ -1,6 +1,7 @@
 """
 This program group the lyrics data by decades
 Output: txt files with all the lyrics for each decade
+Author: Haoyou Liu
 """
 import sqlite3
 

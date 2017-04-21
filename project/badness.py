@@ -3,6 +3,7 @@ Data pre-processing using nltk Snowball stemmer:
 1. Stop words removal
 2. Stemming
 3. Calculate the badness score for each song
+Author: Haoyou Liu
 """
 from __future__ import division
 import nltk

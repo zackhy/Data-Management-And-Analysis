@@ -2,6 +2,7 @@
 This program creates an one-to-many database that contains two tables: artists and songs.
 Artists: artist_id, artist_name, gender, artist_genre, artist_country
 Songs: song_id, song_name, song_lyrics, song_genre, song_length, year, position, artist_id
+Author: Haoyou Liu
 """
 import sqlite3
 

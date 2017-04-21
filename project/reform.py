@@ -1,5 +1,6 @@
 """"
 This program reform badness data which would be then used in R to draw heat map.
+Author: Haoyou Liu
 """
 import csv
 import collections

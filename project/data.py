@@ -1,5 +1,6 @@
 """
 This program fetches Top 100 songs and their lyrics of each year from 1960 to 2014
+Author: Haoyou Liu
 """
 # -*- coding: utf-8 -*-
 import urllib2

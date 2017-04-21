@@ -1,5 +1,6 @@
 """
 This program figures out how lyrics changed in past decades by calculating the frequencies and tf-idf weights of words.
+Author: Haoyou Liu
 """
 # -*- coding: utf-8 -*-
 from __future__ import division

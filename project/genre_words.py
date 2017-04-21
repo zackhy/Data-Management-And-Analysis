@@ -3,6 +3,7 @@ This program uses brown corpus from nltk to find which words can best represent 
 References:
     1. http://www.nltk.org/book/ch02.html
     2. http://www.degeneratestate.org/posts/2016/Apr/20/heavy-metal-and-natural-language-processing-part-1/
+Author: Haoyou Liu
 """
 from __future__ import division
 from nltk.corpus import brown

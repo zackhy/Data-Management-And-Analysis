@@ -1,6 +1,7 @@
 """
 This program group the lyrics data by genres
-Output: .txt file with all the lyrics for each genre
+Output: txt files with all the lyrics for each genre
+Author: Haoyou Liu
 """
 import sqlite3
 

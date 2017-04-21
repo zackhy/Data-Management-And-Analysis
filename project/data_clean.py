@@ -1,5 +1,6 @@
 """
 This program deals with missing lyrics
+Author: Haoyou Liu
 """
 import sqlite3
 
